@@ -1,6 +1,29 @@
 ; a simple graphic library 
 
 
+PRINT_PIXEL:
+; cx and dx has to be respectively x and y , bx is color 
+push bp
+mov bp,sp 
+push cx ; bp - 2
+push dx ; bp - 4
+push bx ; bp - 6
+mov ax , 0A000h ; vga mem start address
+mov es , ax
+mov ax , [bp - 4]
+mov bx , [bp - 2]
+mov cx , 320
+mul cx
+add ax , bx
+mov di , ax
+mov ax , [bp - 6] ; color
+mov [es:di] , al 
+
+add sp, 6 
+pop bp
+ret
+
+ret
 VERT_LINE:
 ; y0 y1; x 
 ; +8 +6 +4
@@ -14,12 +37,9 @@ mov ax, [bp+8]
 cmp ax, [bp+6]
 ja .endloop
 ; draw pixel 
-mov ah, 0ch
-mov bh, 0
-mov al, 50 ; color
 mov cx, [bp +4 ] ; start pos x
 mov dx, [bp +8 ] ; start pos y
-int 10h ;     
+call PRINT_PIXEL   
 ; inc y0
 inc word [bp+8]
 jmp .loop
@@ -38,12 +58,9 @@ mov ax, [bp+8]
 cmp ax, [bp+6]
 ja .endloop
 ; draw pixel 
-mov ah, 0ch
-mov bh, 0
-mov al, 50 ; color
 mov cx, [bp +8 ] ; start pos x
 mov dx, [bp +4 ] ; start pos y
-int 10h ;     
+call PRINT_PIXEL 
 ; inc y0
 inc word [bp+8]
 jmp .loop
@@ -110,13 +127,9 @@ push 0
 
 .loop:
 ;---------- draw the pixel
-mov bx, 0 ; security ?
-mov ah, 0ch
-mov bh, 0
-mov al, 50 ; color
 mov cx, [bp + 10 ] ; x0
 mov dx, [bp + 8 ] ; y0
-int 10h ;   ; ok 
+CALL PRINT_PIXEL
 
 ; -------- break if x0==x1 && y0==y1
 mov ax, [bp+10]
@@ -201,6 +214,48 @@ call BRESENHAM_LINE
 pop bp
 ret 12 ; clear stack 
 
+FILL_RECTANGLE:
+push bp
+mov bp,sp 
+; arg : x y w h  ()
+; x : +10
+; y : +8
+; w : +6
+; h : +4
+
+; for x ( for y( )) 
+push word[bp+10] ; bp-2 x to inc
+push word[bp+8] ; bp -4  y to inc
+
+.loopX:
+mov ax, [bp+10]
+add ax, [bp+6]
+cmp word[bp-2], ax
+je .end
+	.loopY:
+	; print pixel 
+	mov cx, [bp - 2 ] ; x0
+	mov dx, [bp - 4 ] ; y0
+	call PRINT_PIXEL
+
+	mov ax, [bp+8]
+	add ax, [bp+4]
+	cmp word[bp-4], ax
+	je .Continue
+	inc word[bp-4]
+	jmp .loopY
+
+.Continue:
+mov ax, [bp+8]
+mov word[bp-4], ax
+inc word[bp-2]
+jmp .loopX
+
+.end:
+add sp, 4
+pop bp
+ret 8
+
 DRAW_RECTANGLE:
 
 push bp; 
@@ -261,10 +316,23 @@ ret 8
 
 CLR_SCREEN: 
 ; bh is the color
-mov ah, 06h    ; Scroll up function
-xor al, al     ; Clear entire screen
-xor cx, cx    ; Upper left corner CH=row, CL=column
-mov dx, 184FH  ; lower right corner DH=row, DL=column 
-int  10H
+;mov ah, 06h    ; Scroll up function
+;xor al, al     ; Clear entire screen
+;xor cx, cx    ; Upper left corner CH=row, CL=column
+;mov dx, 184FH  ; lower right corner DH=row, DL=column 
+;int  10H
+
+cld                    ; Set forward direction for STOSD
+push es                ; Save ES if you want to restore it after
+mov ax, 0xa000
+mov es, ax             ; Beginning of VGA memory in segment 0xA000
+mov ax, 0              ; Set the color to clear with 0x76 (green?) 0x00=black
+xor di, di           ; Destination address set to 0
+mov cx, (320*200)/4   ; We are doing 4 bytes at a time so count = (320*200)/4 DWORDS
+rep stosd              ; Clear video memory
+pop es                 ; Restore ES
+
 ret
+
+
 
