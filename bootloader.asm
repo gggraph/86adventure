@@ -1,12 +1,54 @@
-org 0x7C00   ; add 0x7C00 to label addresses
-bits 16      ; tell the assembler we want 16 bit code
+org 0x7C00
+;Note that the jump and NOP are part of the BPB
+jmp short start
+nop
 
+; The following code wasn't written by me
+; it's just a Standard BIOS Parameter Block with a FAT12/FAT16 extension
+; considering the comments are pretty good and already describe the use of each value
+; we might just use this as it's working (which is something I had many problems with).
+; Source MikeOS
+; http://mikeos.sourceforge.net/
+; ------------------------------------------------------------------
+; Disk description table, to make it a valid floppy
+; Note: some of these values are hard-coded in the source!
+; Values are those used by IBM for 1.44 MB, 3.5" diskette
+OEMLabel		db "Example "	; Disk label
+BytesPerSector		dw 512		; Bytes per sector
+SectorsPerCluster	db 1		; Sectors per cluster
+ReservedForBoot		dw 1		; Reserved sectors for boot record
+NumberOfFats		db 2		; Number of copies of the FAT
+RootDirEntries		dw 224		; Number of entries in root dir
+; (224 * 32 = 7168 = 14 sectors to read)
+LogicalSectors		dw 2880		; Number of logical sectors
+MediumByte		db 0F0h		; Medium descriptor byte
+SectorsPerFat		dw 9		; Sectors per FAT
+SectorsPerTrack		dw 18		; Sectors per track (36/cylinder)
+Sides			dw 2		; Number of sides/heads
+HiddenSectors		dd 0		; Number of hidden sectors
+LargeSectors		dd 0		; Number of LBA sectors
+; MikeOS's bootloader didn't mention this but the FAT12/FAT16 extension starts here
+DriveNo			dw 0		; Drive No: 0
+Signature		db 41		; Drive signature: 41 for floppy
+VolumeID		dd 00000000h	; Volume ID: any number
+VolumeLabel		db "Example    "; Volume Label: any 11 chars
+FileSystem		db "FAT12   "	; File system type: don't change!
+start: 
+; ------------------------------------------------------------------
+
+;Reset disk system
+mov ah, 0
+int 0x13 ; 0x13 ah=0 dl = drive number
 ; just reset reg like always
 
-xor ax, ax  ; set up segments ; xor is always faster than mov ax, 0 or so
+cli
+xor ax, ax
 mov ds, ax
 mov es, ax
-mov ss, ax     ; setup stack
+mov fs, ax
+mov gs, ax
+mov ss, ax
+
 mov sp, 0x7C00 ; stack grows downwards from 0x7C00
 
 
@@ -18,13 +60,12 @@ mov bx, 0; es:bx = 0x1000: 0
 ;set up disk read
 mov dh, 0x0 ; head 0
 mov dl, 0x0 ; drive 0
-mov ch, 0x0  ; drive 0 
-mov cl, 0x02 ; starting sector to read from disk
-
+mov ch, 0x0  ; cylinder 0 
+mov cl, 0x02 ; starting from sector 2  
 
 read_disk:
 mov ah, 0x02 ; bios int 13h, ah=2
-mov al, 0x05 ; number of sectors to read ; the max is 72 .... but it will fail if file is less than size
+mov al, 11 ;number of sectors to read ; the max is 72 for boch
 int 0x13
 
 jc read_disk ; retry if disk read do error 

@@ -19,7 +19,12 @@ mov di , ax
 mov ax , [bp - 6] ; color
 mov [es:di] , al 
 
-add sp, 6 
+; add sp, 6 
+;; i want to keep cx and dx value in reg
+pop bx
+pop dx
+pop cx
+
 pop bp
 ret
 
@@ -213,6 +218,102 @@ call BRESENHAM_LINE
 ;add sp, 24 ; ----------> we dont need to clear args here cause bresenham already clear the arg . we need to clear it if no clearing during process
 pop bp
 ret 12 ; clear stack 
+
+
+FILL_SQUARE_FAST:
+push bp
+mov bp,sp
+
+; start x : +12
+; start y : +8 
+; size s : +4
+; remember we need to keep cx, and dx.  use di and si?
+
+push ecx
+push edx
+
+.loopX:
+xor eax, eax
+mov ax, [bp+4]
+add eax, [bp+12]
+cmp ecx, eax
+je .end
+
+mov edx, [bp+6]
+	.loopY:
+	xor eax, eax
+mov ax, [bp+4]
+add eax, [bp+8]
+	cmp edx, eax
+	je .endY
+	call PRINT_PIXEL
+	inc edx
+	jmp .loopY
+.endY:
+inc ecx
+jmp .loopX
+.end:
+pop edx
+pop ecx
+pop bp
+ret
+
+
+FILL_RECTANGLE_DITHERING:
+push bp
+mov bp,sp 
+; arg : x y w h  ()
+; dither A
+; dither B
+; x : +10
+; y : +8
+; w : +6
+; h : +4
+
+; for x ( for y( )) 
+push word[bp+10] ; bp-2 x to inc
+push word[bp+8] ; bp -4  y to inc
+
+.loopX:
+mov ax, [bp+10]
+add ax, [bp+6]
+cmp word[bp-2], ax
+je .end
+	.loopY:
+	; print pixel 
+	mov cx, [bp - 2 ] ; x0
+	mov dx, [bp - 4 ] ; y0
+	; i will add to bl +8 if cx is multiple of 2 
+	push bx
+	test cl, 1
+	jz .noditherA
+	add bl, [bp+14] ; <<--- dither a offset
+	.noditherA:
+	test dl, 1
+	jz .noditherB
+	add bl, [bp+12] ; <<--- dither a offset
+	.noditherB:
+	call PRINT_PIXEL
+	pop bx
+
+	mov ax, [bp+8]
+	add ax, [bp+4]
+	cmp word[bp-4], ax
+	je .Continue
+	inc word[bp-4]
+	jmp .loopY
+
+.Continue:
+mov ax, [bp+8]
+mov word[bp-4], ax
+inc word[bp-2]
+jmp .loopX
+
+.end:
+add sp, 4
+pop bp
+ret 12
+
 
 FILL_RECTANGLE:
 push bp
