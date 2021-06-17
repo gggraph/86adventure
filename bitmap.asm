@@ -19,11 +19,31 @@ mov eax, 0x18 ;
 cmp al, [edi+28]
 jne .end ; this is not a 24 bit depth bitmap
 
+
 mov eax, 54 ; this is bitarray offset for 24bit bitmap
 push eax ; the counter at [bp-4]
 
-; cx and dx has to be respectively x and y , bx is color 
 
+; proccess padding. 
+
+mov eax,  dword [edi+18] 
+mov ecx, 3
+mul ecx
+and eax, ecx ; we can also use test 
+cmp eax, 0
+je .next
+
+.conda:
+mov edx, 4
+sub edx, eax
+push dx
+jmp .next
+.condb:
+xor edx, edx
+push dx
+.next:
+
+; cx and dx has to be respectively x and y , bl is color 
 xor edx, edx
 mov dx, [bp+6]
 add edx, dword[edi+22] ;; edx is height we can add more 
@@ -47,8 +67,7 @@ mov cx, [bp+8]
 	je .endX
 	;;------------ PRINT THE PIXEL HERE 
 	
-	; safe web palette color = (r*6/256)*36 + (g*6/256)*6 + (b*6/256)
-	; we will do some hack here :  
+	; we will do some hack here to convert to grayscale:  
 
 	xor ebx, ebx
 	mov esi, dword[bp-4]; the counter
@@ -68,11 +87,19 @@ mov cx, [bp+8]
 	
 
 .endX:
+
+; we need to add trailing byte if width is not multiple of 4 .  ( so inc esi by one )
+; pad is at [bp-6]
+xor esi, esi
+add si,  [bp-6];
+add esi, dword[bp-4];
+mov dword[bp-4], esi
+
 dec edx
 jmp .loopY
 
 .end:
-add sp, 4
+add sp, 6
 pop bp
 ret
 
