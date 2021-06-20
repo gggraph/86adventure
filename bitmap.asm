@@ -122,7 +122,8 @@ mov cx, [bp+10]
 	push edi
 	push ecx
 	push edx
-
+	
+	;------------ APPLY DITHERING AND SCALING
 	push 10; dither a
 	push 2; dither b
 	xor edi, edi
