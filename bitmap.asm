@@ -1,4 +1,6 @@
 
+
+
 ; --------------------------------
 ; adding  croping parameters
 ;---------------------------------
@@ -230,7 +232,7 @@ add sp, 4
 pop bp
 ret 16
 
-
+phrase2 db 'zzzzzzzzzzzzzzzzz ', 0
 phrase db 'hello les bimmeurz ', 0 
 
 

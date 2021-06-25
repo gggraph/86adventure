@@ -3,12 +3,7 @@ org 0x7C00
 jmp short start
 nop
 
-; The following code wasn't written by me
-; it's just a Standard BIOS Parameter Block with a FAT12/FAT16 extension
-; considering the comments are pretty good and already describe the use of each value
-; we might just use this as it's working (which is something I had many problems with).
-; Source MikeOS
-; http://mikeos.sourceforge.net/
+
 ; ------------------------------------------------------------------
 ; Disk description table, to make it a valid floppy
 ; Note: some of these values are hard-coded in the source!
@@ -23,8 +18,8 @@ RootDirEntries		dw 224		; Number of entries in root dir
 LogicalSectors		dw 2880		; Number of logical sectors
 MediumByte		db 0F0h		; Medium descriptor byte
 SectorsPerFat		dw 9		; Sectors per FAT
-SectorsPerTrack		dw 18		; Sectors per track (36/cylinder)
-Sides			dw 2		; Number of sides/heads
+SectorsPerTrack		dw 18		; >>>>> Nombre de secteurs par piste ( il y a 36 pistes par cylindre), nous avons donc ici 648 secteur par cylindre, soit 331776 octets 
+Sides			dw 2		    ; Number of sides/heads
 HiddenSectors		dd 0		; Number of hidden sectors
 LargeSectors		dd 0		; Number of LBA sectors
 ; MikeOS's bootloader didn't mention this but the FAT12/FAT16 extension starts here
@@ -41,7 +36,7 @@ mov ah, 0
 int 0x13 ; 0x13 ah=0 dl = drive number
 ; just reset reg like always
 
-cli
+
 xor ax, ax
 mov ds, ax
 mov es, ax
@@ -51,6 +46,9 @@ mov ss, ax
 
 mov sp, 0x7C00 ; stack grows downwards from 0x7C00
 
+;push 36
+;jmp BOOT_EXTENDED
+boothere:
 
 ; set up es:bx memory addresss/segment:offset to load sector(s) into 
 mov bx,0x1000 ; load sector to memory address 0x1000
@@ -65,11 +63,10 @@ mov cl, 0x02 ; starting from sector 2
 
 read_disk:
 mov ah, 0x02 ; bios int 13h, ah=2
-mov al, 11 ;number of sectors to read ; the max is 72 for boch
+mov al, 11; max is 123 
 int 0x13
 
 jc read_disk ; retry if disk read do error 
-
 
 
 ; reset segment registers for RAM
@@ -83,10 +80,8 @@ mov ss, ax
 jmp 0x1000:0x0
 
 
-;include 'loaddisk.asm' ; include here load disk asm
-
 end:
 jmp end
 
-times 510-($-$$) db 0 ; fill 0 of what it left 
-dw 0AA55h ; some BIOSes require this signature ; do the signature for the bioses
+times 510-($-$$) db 0 ; fill sector 0
+dw 0AA55h ; bios signature

@@ -1,139 +1,215 @@
 
 
+cli
 
-setup_vga_mode:
-mov ah, 00h
-mov al, 13h
-int 10h
+loopt:
 
+call SETUP_VGA_MODE
 
-caller:
+;[bp+12] is scaling
+;[bp+10] is color
+;[bp+8]  is x offset pos
+;[bp+6]  is y offset pos
+;[bp+4]  ptr de la phrase
 
-;; mouse init
-call mouse_initialize
-call mouse_enable           ; Enable the mouse
-sti
-
-
-call DRAW_MESH
-push word w
-call POINTER_TESTB
-push ax
-push 10
-push 50
+push 8
 push 20
-push 220
-push 150
-call DRAW_TRIANGLE
-.loopmesh:
-
-jmp .loopmesh
-
-jmp end
-;; moving a triangle test
-moving_triangle:
-
-.loop:
-xor eax,eax
-mov bh, 0 ; 80 nice color here ( yellow)
-call CLR_SCREEN
-
-push 50
-push 10
-push 50
-push 100
-call FILL_RECTANGLE
-
-push 60
-push 10
-push 90
-push 80
-; use mouse x to test stuff
-mov ax, [mouseX]
-push ax
-call MOUSE_POS_TO_SCREEN
-push ax
-mov ax, [mouseY]
-push ax
-call MOUSE_POS_TO_SCREEN
-push ax
-call DRAW_TRIANGLE
-
-push 60
-push 10
-push 230
-push 80
-; use mouse x to test stuff
-mov ax, [mouseX]
-push ax
-call MOUSE_POS_TO_SCREEN
-push ax
-mov ax, [mouseY]
-push ax
-call MOUSE_POS_TO_SCREEN
-push ax
-call DRAW_TRIANGLE
-
-push 90
-push 80
-push 230
-push 80
-; use mouse x to test stuff
-mov ax, [mouseX]
-push ax
-call MOUSE_POS_TO_SCREEN
-push ax
-mov ax, [mouseY]
-push ax
-call MOUSE_POS_TO_SCREEN
-push ax
-call DRAW_TRIANGLE
+push 0
+push 0
+push phrase
+call PRINT_WORD_BMP
 
 
+push 0			 ; WIDTH
+push 0			 ; HEIGHT
+push 0			 ; X START PIXEL
+push 0			 ; Y START PIXEL 
+push 10;word [bp+4]; COLOR STUFF
+push 6			 ; SCALING ( CAN BE MULTIPLIED)
+push 80			 ; X POS
+push 20			 ; Y POS
+xor eax, eax
+mov ax, mbmp
+push  eax		; POINTER TO ARRAY OF THE PIXEL
+call PRINT_BITMAP_ADVANCED
+
+pause1:
+in al, 96
+cmp al, 17
+je .seq2
+jmp pause1
+
+
+
+.seq2:
+
+push 0
+call CLEAR_SCREEN
+pause2:
+
+waitForKey: mov         ah,01H
+                        int   16H
+                        jnz   gotKey       ;jmp if key is ready
+
+
+call CLEAR_SCREEN
+push 0			 ; WIDTH
+push 20			 ; HEIGHT
+push 0			 ; X START PIXEL
+push 0			 ; Y START PIXEL 
+push 30;word [bp+4]; COLOR STUFF
+push 4			 ; SCALING ( CAN BE MULTIPLIED)
+push 80			 ; X POS
+push 0			 ; Y POS
+xor eax, eax
+mov ax, mbmp
+push  eax		; POINTER TO ARRAY OF THE PIXEL
+call PRINT_BITMAP_ADVANCED
+
+push 0			 ; WIDTH
+push 20			 ; HEIGHT
+push 0			 ; X START PIXEL
+push 0			 ; Y START PIXEL 
+push 30;word [bp+4]; COLOR STUFF
+push 4			 ; SCALING ( CAN BE MULTIPLIED)
+push 80			 ; X POS
+push 80			 ; Y POS
+xor eax, eax
+mov ax, mbmp
+push  eax		; POINTER TO ARRAY OF THE PIXEL
+call PRINT_BITMAP_ADVANCED
+
+mov word[charpx], 0
+mov word[charpy], 0
+mov cx, 0
+	.loopprinta:
+	cmp cx, word[inctr]
+	je .endprinta
+	
+	push ax
+	push cx
+	push 4
+	push  10
+	push word[charpx]
+	push word[charpy]
+	mov si , input
+	add si, cx
+	mov ax, word[si]
+	push ax
+	call PRINT_CHAR_BMP
+	pop cx
+	pop ax
+
+	push cx
+	push 3
+	push 40
+	push word[charpx]
+	push word[charpy]
+		mov si , input
+	add si, cx
+	mov ax, word[si]
+	push ax
+	call PRINT_CHAR_BMP
+	pop cx
+
+	add word[charpx], 20
+	cmp word[charpx], 300
+	jl .enddrawa
+	mov word[charpx], 0
+	add word[charpy], 20 
+	.enddrawa:
+	inc cx
+	jmp .loopprinta
+.endprinta:
+
+call WAITSTUFF
+
+mov word[charpx], 0
+mov word[charpy], 0
+mov cx, 0
+	.loopprint:
+	cmp cx, word[inctr]
+	je .endprint
+	
+	push ax
+	push cx
+	push 4
+	push  30
+	push word[charpx]
+	push word[charpy]
+	mov si , input
+	add si, cx
+	mov ax, word[si]
+	push ax
+	call PRINT_CHAR_BMP
+	pop cx
+	pop ax
+
+	push cx
+	push 3
+	push 20
+	push word[charpx]
+	push word[charpy]
+		mov si , input
+	add si, cx
+	mov ax, word[si]
+	push ax
+	call PRINT_CHAR_BMP
+	pop cx
+
+	add word[charpx], 20
+	cmp word[charpx], 300
+	jl .enddraw
+	mov word[charpx], 0
+	add word[charpy], 20 
+	.enddraw:
+	inc cx
+	jmp .loopprint
+.endprint:
+
+call WAITSTUFF
+gotKey: 
+
+mov   ah,00h
+int   16H
+xor bx, bx
+mov bx, [inctr]
+mov word[input+bx], ax
+
+inc bx
+mov word[inctr], bx
+cmp bx, 200
+jne .n
+mov word[inctr], 0
+.n:
+
+
+jmp pause2
+
+WAITSTUFF:
 mov al, 0
 mov ah, 86h
-mov cx, 0
-mov dx, 15
-int 0x15 ;
+mov cx, 0x2
+mov dx, 0x93E0
+int 15H ; wait like 300 ms
+ret
 
-jmp .loop
+ mov al, 0
+   mov ah, 86h
+   mov cx, 0x4
+   mov dx, 0x93E0
+  int 15H ; wait like 300 ms
 
-jmp end
 end:
 jmp end
 
 
-fA dd  100 ; 8.0f
-fB dd  1090519040 ; 8.0f
+charpx dw 0
+charpy dw 0
+inctr  dw 0 
+input times 200 dw 0
 
-MOUSE_POS_TO_SCREEN: ; will store in ax
-push bp
-mov bp,sp
-; bp+4 is mpos
-mov cx, [bp+4] ; keep lower
-;shr cl, 1
-mov ch, 0
-mov ax,[bp+4]
-cmp ah, 2
-ja .stateB ; dont do anything
-xor ah, ah
-mov al, cl
-mov cx, 4
-;mul ax ; multiply per 2 
-jmp .end
-.stateB:
-xor ah, ah
-mov al, cl
-mov cx, 2
-;mul ax ; multiply per 2 
-.end:
-pop bp
-ret 2
+%include 'graphics.asm'
+%include 'system.asm'
+%include 'bitmap.asm'
 
-%include "system.asm"
-%include "graphics.asm"
-%include "mouse.asm"
-%include "3d.asm"
-
-;sector padding magic
-;times 512-($-$$) db 0
