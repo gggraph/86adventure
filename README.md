@@ -2,7 +2,7 @@
 ![](asm_1.gif)
 
 
-<font size="10">
+<font size="40">
   
   X86adventure is a light kernel (bootloader included) for x86-64 microprocessor working in real mode.
   
