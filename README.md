@@ -1,8 +1,10 @@
 # 86adventure
 ![](asm_1.gif)
 
-X86adventure is a light kernel (bootloader included) for x86-64 microprocessor working in real mode.
 
+<font size="6">
+  X86adventure is a light kernel (bootloader included) for x86-64 microprocessor working in real mode.
+</font>
 It provides a graphic library (13h vga mode)  allowing you to:
 
 1 : Draw generic shapes ( lines, rectangles, triangles, circles ...)
