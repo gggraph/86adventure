@@ -1,6 +1,3 @@
-<p align="center">
-  
- </p>
 # 86adventure
 ![](asm_1.gif)
 
