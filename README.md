@@ -11,7 +11,7 @@ It provides a **graphic library** (13h vga mode)  allowing you to:
 
 3 : Print text with your own bitmap font!
 
-4 : Drawing sprites from spritesheet.
+4 : Draw sprites from spritesheet.
 
 
 
