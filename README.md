@@ -1,13 +1,9 @@
 # 86adventure
 ![](asm_1.gif)
 
+X86adventure is a **light kernel** (bootloader included) for **x86-64** microprocessor working in **real mode**.
 
-<font size="40">
-  
-  X86adventure is a light kernel (bootloader included) for x86-64 microprocessor working in real mode.
-  
-</font>
-It provides a graphic library (13h vga mode)  allowing you to:
+It provides a **graphic library** (13h vga mode)  allowing you to:
 
 1 : Draw generic shapes ( lines, rectangles, triangles, circles ...)
 
@@ -19,9 +15,9 @@ It provides a graphic library (13h vga mode)  allowing you to:
 
 **The demo includes a realtime map and sprite editors**  
 
-## Making custom spritesheet
+### Making custom spritesheet
 ![](asm_8.gif)
 
-## Building level
+### Building level
 ![](asm_4.gif)
 
