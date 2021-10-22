@@ -17,9 +17,9 @@ It provides a **graphic library** (13h vga mode)  allowing you to:
 
 ## About the demo 
 
-The demo includes a realtime map and sprite editors and a basic menu screen.
+The demo includes a **realtime map and sprite editors** and a basic menu screen.
 
-Map data structure is dword width value + dword height value + byte array of tiles index (starting upper left, line by line).
+You can make default map and spritesheet using mapeditor.exe (save them clicking on save 8bit buttons, then copy binary data below related label in kernel.asm).
 
 You can use byte2nasmdef.exe to convert binary file data to its NASM definition, (typing path of the file). 
  
@@ -31,13 +31,13 @@ You can use byte2nasmdef.exe to convert binary file data to its NASM definition,
 
 ## Boot it on real hardware! 
 
-Convert .asm files to binary using nasm, or run launch.bat if you are on windows. 
+-Convert .asm files to binary using nasm, or run launch.bat if you are on windows. 
 
-Run sectorpadding.exe to make disk.bin size multiple of 512 bytes. Output is usb.bin 
+-Run sectorpadding.exe to make disk.bin size multiple of 512 bytes. Output is usb.bin 
 Make sure sector numbers equal al value at int 13h, ah 0x02 instructions (line 66 of bootloader.asm) 
 
-Write usb.bin to usb drive starting from sector 0 (use a software like HDDRawCopy).
+-Write usb.bin to usb drive starting from sector 0 (use a software like HDDRawCopy).
 
-Restart your computer. 
+-Restart your computer. 
 
 
