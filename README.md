@@ -31,7 +31,7 @@ You can use byte2nasmdef.exe to convert binary file data to its NASM definition,
 
 ## Boot it on real hardware! 
 
-- Convert .asm files to binary using nasm, or run launch.bat if you are on windows. 
+- Convert .asm files to binary using nasm, or run launch.bat (for windows users). 
 
 - Run sectorpadding.exe to make **disk.bin size multiple of 512 bytes**. Output is **usb.bin**
  
