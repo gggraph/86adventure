@@ -12,7 +12,7 @@
 - 
 **The demo includes a realtime map and sprite editors**  
 ## Making custom spritesheet
-![](asm_7.gif)
+![](asm_8.gif)
 
 ## Building level
 ![](asm_4.gif)
