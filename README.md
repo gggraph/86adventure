@@ -1,8 +1,10 @@
-
+<p align="center">
+  
+ </p>
 # 86adventure
 ![](asm_1.gif)
 
-**X86adventure is a light kernel (bootloader included) for x86-64 microprocessor.**
+**X86adventure is a light kernel (bootloader included) for x86-64 microprocessor working in real mode.**
 
 **It provides a graphic library :**
 - **Drawing generic shapes ( lines, rectangles, triangles, circles ...)**
