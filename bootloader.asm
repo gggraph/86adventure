@@ -63,7 +63,7 @@ mov cl, 0x02 ; starting from sector 2
 
 read_disk:
 mov ah, 0x02 ; bios int 13h, ah=2
-mov al, 11; max is 123 
+mov al, 21; max is 123 
 int 0x13
 
 jc read_disk ; retry if disk read do error 

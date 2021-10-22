@@ -185,7 +185,6 @@ pop bp
 ret 8; clear the stack args
 ; better than pop 6 times and ret ?
 
-
 DRAW_TRIANGLE:
 ;[bp+14] ; x0
 ;[bp+12] ; y0
@@ -223,7 +222,6 @@ ret 12 ; clear stack
 FILL_SQUARE_FAST:
 push bp
 mov bp,sp
-
 ; start x : +12
 ; start y : +8 
 ; size s : +4
@@ -259,16 +257,66 @@ pop bp
 ret
 
 
-FILL_RECTANGLE_DITHERING:
-push bp
-mov bp,sp 
-; arg : x y w h  ()
-; dither A
-; dither B
+DRAW_RECTANGLE_EXT:
+; line width +12 
 ; x : +10
 ; y : +8
 ; w : +6
 ; h : +4
+push bp
+mov bp, sp
+
+.loop:
+cmp word[bp+12], 0
+je .end
+
+mov ax, [bp+10]
+push ax
+add ax, [bp+6]
+push ax
+push word[bp+8]
+call HOR_LINE
+
+mov ax, [bp+10]
+push ax
+add ax, [bp+6]
+push ax
+mov ax, [bp+8]
+add ax, [bp+4]
+push ax
+call HOR_LINE
+
+mov ax, [bp+8]
+push ax
+add ax, [bp+4]
+push ax
+push word [bp+10]
+call VERT_LINE
+
+mov ax, [bp+8]
+push ax
+add ax, [bp+4]
+push ax
+mov ax, [bp+10]
+add ax, [bp+6]
+push ax
+call VERT_LINE
+
+inc word[bp+10]
+inc word[bp+8]
+sub word[bp+6], 2
+sub word[bp+4], 2
+dec word[bp+12]
+jmp .loop
+.end:
+pop bp
+ret 10
+
+
+FILL_RECTANGLE_DITHERING:
+push bp
+mov bp,sp 
+
 
 ; for x ( for y( )) 
 push word[bp+10] ; bp-2 x to inc
