@@ -33,8 +33,9 @@ You can use byte2nasmdef.exe to convert binary file data to its NASM definition,
 
 - Convert .asm files to binary using nasm, or run launch.bat if you are on windows. 
 
-- Run sectorpadding.exe to make disk.bin size multiple of 512 bytes. Output is usb.bin 
-Make sure sector numbers equal al value at int 13h, ah 0x02 instructions (line 66 of bootloader.asm) 
+- Run sectorpadding.exe to make **disk.bin size multiple of 512 bytes**. Output is **usb.bin**
+ 
+**Make sure sector numbers equal al value at int 13h, ah 0x02 instructions (line 66 of bootloader.asm)** 
  
 - Write usb.bin to usb drive starting from sector 0 (use a software like HDDRawCopy).
 
