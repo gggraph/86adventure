@@ -1,5 +1,5 @@
 # 86adventure
-![](git-content/game.gif)
+![](git-content/intro.gif)
 
 X86adventure is a **tiny 2D game engine** written in assembly for **x86 microprocessor**. x86adventure works in **16bit mod**.
 
@@ -30,7 +30,7 @@ Compile first the bootloader. It will be written in the first sector of the flop
 ```
 nasm bootloader.asm -f bin -o bootloader.bin
 ```
-
+ 
 Compile the game engine files : 
 ```
 nasm bootscreen.asm -f bin -o bootscreen.bin
