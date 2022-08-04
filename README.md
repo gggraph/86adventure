@@ -15,8 +15,8 @@ It includes a graphic library (13h vga mode)  allowing you to:
 
 ## About the demo 
 
-[Tools and Technologies Used](#Sprite-Editor)
-The demo includes a **boot screen**, a **map editor**, a **sprite editor** and basic **game engine** (collision detection, physics... etc.)   
+
+The demo includes a boot screen, a [sprite editor](#Sprite-Editor), a [map editor](#Level-Editor) and a basic [game engine](#Play) (collision detection, physics... etc.)   
 
 ## How to run it
 
