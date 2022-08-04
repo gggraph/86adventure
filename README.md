@@ -24,10 +24,13 @@ You can make default map and spritesheet using mapeditor.exe (save them clicking
 You can use byte2nasmdef.exe to convert binary file data to its NASM definition, (typing path of the file). 
  
 ### Making custom spritesheet
-![](asm_8.gif)
+![](git-content/spediting.gif)
 
 ### Building level
-![](asm_4.gif)
+![](git-content/mapediting.gif)
+
+### Post-Proccessing
+![](git-content/postproc.gif)
 
 ## Boot it on real hardware! 
 
