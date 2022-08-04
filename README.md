@@ -15,13 +15,15 @@ It includes a graphic library (13h vga mode)  allowing you to:
 
 ## About the demo 
 
-
 The demo includes a boot screen, a [sprite editor](#Sprite-Editor), a [map editor](#Level-Editor) and a basic [game engine](#Play) (collision detection, physics... etc.)  
 
-Use +/- to navigate between sprites.
-Left click to change tile or right click to remove tile.
-Press space to set starting position of character on the map.
-Arrow to move. Z to jump. X to use dash when ready. Up/down arrow to climb plants.
+* Use +/- to navigate between sprites.
+* Left click to change tile or right click to remove tile.
+* Press space to set starting position of character on the map.
+* Arrow to move. 
+* Z to jump. 
+* X to use dash when ready. Up/down arrow to climb plants.
+* Escape to quit play mode or sprite editing.
 
 ## How to build
 
