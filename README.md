@@ -1,5 +1,5 @@
 # 86adventure
-![](git-content/intro.gif)
+![](git-content/game.gif)
 
 X86adventure is a **tiny 2D game engine** written in assembly for **x86 microprocessor**. x86adventure works in **16bit mod**.
 
