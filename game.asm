@@ -1,18 +1,16 @@
 
 
-		
-
 ; Character Data
-xm dw 0
-ym dw 0
-x  dw 0
-y  dw 0
-dir db 0 ; UP RIGHT DOWN LEFT
-charsprite db 0
+xm		dw 0 ; X-Axis velocity
+ym		dw 0 ; Y-Axis velocity
+x		dw 0 ; X position &(pixel unit)
+y		dw 0 ; Y position (pixel unit)
+dir		db 0 ; Current char direction for sprite display
+charsprite db 0 ; Current sprite index of character to display
 
-lastfloor	dw 0, 0 
+lastfloor	dw 0, 0 ; Latest floor touched for bouncing effect
 
-; some flags need better system
+; some flags
 onground	db 0
 canjump		db 1
 candash     db 0
@@ -23,13 +21,13 @@ grimping	db 0
 ; player cam
 playercam	dw 0, 0 
 
-; origin position
-; moon   >  40 : 0 
-; desert >  20 : 0
-originpos  dw 20, 0
-
+; default position
+; moon   >  X40 : Y0 
+; desert >  X20 : Y0
+originpos	dw 20, 0
+	
 ;special events 
-cheatmode		db 0
+cheatmode		db 0 ; allow user to press space to switch gravity
 autoswitch      db 0
 clockswitch     db 0
 
@@ -72,6 +70,8 @@ PLAY:
 ; Unsafe. Should be called inside main loop.
 QUIT_PLAY:
 	call		DEATHMYCHAR
+	mov			ecx,[camtarget]
+	mov			dword[campos], ecx
 	jmp			MAP_EDITOR
 
 
@@ -239,7 +239,6 @@ MOVEMYCHAR:
 	mov			ax, [gravity1]
 	add			word[ym], ax
 
-	; SHOULD HAVE GRIPPING MECHANISM HERE ... 
 
 	.limitspeed:
 	mov			ax, [speedlimit]
@@ -343,11 +342,7 @@ GET_MAP_FLAG:
 	xor			ebx, ebx
 	mov			ax, bx
 	mov			bl, byte[edi+esi] 
-	;cmp			byte[kbdbuf+0x2D], 0 ; <----------- JUST A DEBUG....
-	;je			.next
-	;mov			byte[edi+esi], 3 ; 4 debug
-	;.next:
-	; if bl = 0xff return 0 
+	
 	cmp			bl, 0xff
 	je			.wasnull
 	mov			al, bl
@@ -427,12 +422,12 @@ RESTORE_ITEMS:
 	.checkjmp:
 	cmp			al, 0xf2
 	jne			.checkdsh
-	mov			byte[di+bx], 66 ; ?
+	mov			byte[di+bx], 66 
 	jmp			.next
 	.checkdsh:
 	cmp			al, 0xf3
 	jne			.next
-	mov			byte[di+bx], 105 ; ?
+	mov			byte[di+bx], 105 
 	
 	.next:
 	inc			bx
@@ -444,7 +439,6 @@ RESTORE_ITEMS:
 	; 5: jump cooin, 6: dash coin, 7: death block , 8: water, 9: grimp
 
 ; Proccess game blocks (coin, switch, death block etc...) [Args : x scan +6 , y scan +4] 
-; How to keep A register ?
 HITMYCHARFLAG:
 	push		bp
 	mov			bp, sp
@@ -564,7 +558,6 @@ HITMYCHARFLAG:
 
 ENABLEEVENTSWITCH:
 	mov			byte[autoswitch], 1
-	;mov			word[PIX_DITHER], 16	
 
 	mov			edi, maptiledata
 	mov			eax, [edi]
@@ -823,7 +816,7 @@ CHECK_GRAVITY_SWITCH:
 	mov			byte[LASTSPVALUE], al
 	ret 
 
-SWITCH_GRAVITY: ; LOSING A REGISTER COULD BE BETTER DONE
+SWITCH_GRAVITY: 
 
 	neg			word[gravity1]
 	neg			word[gravity2]
@@ -832,8 +825,8 @@ SWITCH_GRAVITY: ; LOSING A REGISTER COULD BE BETTER DONE
 	mov			al, 1
 	sub			al, byte[INVGRAVITY]
 	mov			byte[INVGRAVITY], al
-	jmp			.done    ;;; disable pixels switch .... for test
-	;; Inverted color of all map pixels  so if (10->245) [ 255-10] if (255>10) [255-245] -> 10. There is 1032 bytes ...
+	jmp			.done    ;;; disable pixels displacement .... for test
+	;; Inverted color of all map pixels. This can differenciate better gravity direction.
 	mov			edi, mapsheet
 	mov			eax, [edi]
 	mov			ecx, [edi+4]
@@ -841,7 +834,7 @@ SWITCH_GRAVITY: ; LOSING A REGISTER COULD BE BETTER DONE
 	.loop:
 	test		eax, eax
 	jz			.done
-	mov			bx, 12 ; offfset ?
+	mov			bx, 12 
 	add			bx, ax
 	mov			cl, 140 ; 255
 	sub			cl, byte[di+bx]
@@ -906,7 +899,7 @@ APPLYBOUNCE:
 	ret
 
 camtarget	dw 0 , 0
-lerpspeed	db 2 ; IDK if we feel it ? Do we keep it ?
+lerpspeed	db 2 ; IDK if we feel it enough ? Do we keep it ?
 
 UPDATECAMPOS:
     
@@ -983,15 +976,15 @@ DRAWGAMEGRAPHICS:
 
 	; Print Map at target
 	.printmap: 
-		; Just an example of background using scaling 1. We can use shift [camtarget] to do some parallax :) 
+	; Just an example of background using scaling 1. We can use shift [camtarget] to do some parallax :) 
 	;It s twice and screen is 320 and 40*8 is 320 so we cannot do x scrolling 
 	;push		320 
 	;push		200
 	;push		word[camtarget]
 	;push		word[camtarget+2]
 	;push		1 
-	;xor			eax, eax
-	;mov			ax , maptiledata
+	;xor		eax, eax
+	;mov		ax , maptiledata
 	;push		eax
 	;call		PRINT_MAP_AT_ORIGIN_ZERO
 
@@ -1005,8 +998,6 @@ DRAWGAMEGRAPHICS:
 	push		eax
 	call		PRINT_MAP_AT_ORIGIN_ZERO
 
-	
-	
 	; [3] Print character. 
 	push		2		;  Scaling 
 	push		0		;  Color 0 means bypass black color when printing 

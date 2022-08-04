@@ -29,7 +29,7 @@ VolumeID		dd 00000000h	; Volume ID: any number
 VolumeLabel		db "Example    "; Volume Label: any 11 chars
 FileSystem		db "FAT12   "	; File system type: don't change!
 start: 
-; ------------------------------------------------------------------
+
 
 ;Reset disk system
 mov ah, 0

@@ -82,5 +82,6 @@ irq1isr:
 ; Escape button = 01
 ; +             = E4
 ; -             = A4
+; Enter         = 1C
 kbdbuf:
     times   128 db 0

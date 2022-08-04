@@ -132,6 +132,7 @@ SPRITE_EDITOR:
 		push		bx
 		push		cx
 		push		dx
+
 		; check if mouseX is over 
 		push		bx
 		mov			ax, [mouseX]
@@ -158,9 +159,11 @@ SPRITE_EDITOR:
 		jnz			.drawclr
 
 		.changecolor:
-		
+		pop			bx
+		push		cx
+		push		dx
 		mov			word[colorsel], bx
-		; also draw the full color at place of the sprite !
+		; Draw the full color at place of the sprite
 		push		0
 		push		0
 		push		20
@@ -168,6 +171,10 @@ SPRITE_EDITOR:
 		push		64
 		push		64
 		call		FILL_RECTANGLE_DITHERING
+		pop			dx
+		pop			cx
+		push		bx
+		
 
 		.drawclr:
 		pop			bx
@@ -187,8 +194,11 @@ SPRITE_EDITOR:
 		pop			dx
 		pop			cx
 		pop			bx
+
+		; increment color and x axis
 		inc			bx 
 		inc			cx
+
 		jmp			.loopX
 
 	.endX:
@@ -229,6 +239,8 @@ SPRITE_EDITOR:
 	mov			si, spleavebutton ; get back si. PrintButton modify si
 	mov			ax, [si+10]
 	cmp			ax, 2
+	je			MAP_EDITOR
+	cmp			byte[kbdbuf+0x01], 1
 	je			MAP_EDITOR
 
 	; Draw the cursor depending if color or not 

@@ -1,7 +1,7 @@
 
-; Print a sprite at position [ Args : scale, color?, spritesize, sprite index, x, y, sheet pointer] 
+; Print Sprite [ARGS : scaling , color, spriitesize, spritennumber, x, y, bitmap pointer]
 PRINT_SPRITE_CUSTOMFORMAT: 
-
+		
 	push		bp
 	mov			bp,sp
 
@@ -36,12 +36,13 @@ PRINT_SPRITE_CUSTOMFORMAT:
 	push		dword[bp+4];
 	call		PRINT_CUSTOM_8BIT_FORMAT
 
+	.end:
 	add			sp, 4
 	pop			bp
 	ret			16
 	 
-; Print a single sprite on screen from map [ ARGS : X , Y, spritesheet pointer, Sprite Size, map X, map Y, resolution, map pointer ]
-;											       20	18			14			  12	       10	8			         4
+; Print a single sprite on screen from map 
+
 PRINT_MAP_SPRITE_EXT:
 
 	push		bp
@@ -83,6 +84,11 @@ PRINT_MAP_SPRITE_EXT:
 	xor			ax, ax
 	mov			al, byte [edi+esi]
 	push		ax
+	
+	; Performance : Cancel Operation if tile index equal 0xFF
+	cmp			ax, 0xff
+	je			.cancelop
+
 
 
 	; get sprite coord in spritesheet
@@ -109,30 +115,35 @@ PRINT_MAP_SPRITE_EXT:
 	; width is spritesize - remainder x
 	mov			ax, word[bp+14]
 	sub			ax, word[bp-4]
-	push		ax          ; - remainder x
+	push		ax          ; - remainder x +22
 	; height is spritesize - remainder y 
 	mov			ax, word[bp+14]
 	sub			ax, word[bp-8]
-	push		ax          ; -remainder y
+	push		ax          ; -remainder y +20
 
 	; xstart is  bp-14 + remainder x
 	mov			ax,  word[bp-14]
 	add			ax, word[bp-4]
-	push		ax          ; + remainder x
+	push		ax          ; + remainder x +18
 
 	mov			ax, word[bp-12]
 	add			ax, word[bp-8]
-	push		ax ; + remainder y
-	push		0           ; color
-	push		word[bp+8]  ; scaling
-	push		word[bp+22] ; offX
-	push		word[bp+20] ; offY
-	push		dword[bp+16]; 
+	push		ax ; + remainder y +16
+	push		0           ; color +14
+	push		word[bp+8]  ; scaling +12
+	push		word[bp+22] ; offX +10
+	push		word[bp+20] ; offY +8 
+	push		dword[bp+16]; sheet pointer +4
 	call		PRINT_CUSTOM_8BIT_FORMAT
 
 	add			sp, 14
 	pop			bp
 	ret			20
+	.cancelop:
+	add			sp, 10
+	pop			bp
+	ret			20
+
 
 ; Print MAP AT 0:0 [ ARGS : width, height, map x, map y, resolution, map pointer] 
 PRINT_MAP_AT_ORIGIN_ZERO:
@@ -180,7 +191,6 @@ PRINT_MAP_EXT:
 		jae			.endX
 	
 		pusha
-
 		; Get X position in screen 
 		; save Y cursor
 		push		dx	

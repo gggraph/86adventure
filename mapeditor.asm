@@ -9,17 +9,6 @@ WAIT_MOUSE_RELEASED:
 	ret
 
 
-; TO DO : 
-; BETTER UI 
-; ----> [+ - block for sprite sel change]
-; ----> [better button (little) 
-; ----> Control Camera also with keyboard
-; ----> Change Map editing and button that tell current map ... .... 
-; BETTER MOUSE ?
-; PRINT CHARACTER PLACEMENT
- 
-
-
 MAP_EDITOR:
 
 	call		WAIT_MOUSE_RELEASED
@@ -162,21 +151,30 @@ MAP_EDITOR:
 
 
 	.drawchar: 
+
+	mov			cx, [originpos]
+	sub			cx, [campos]
+	shl			cx, 1
+	mov			dx, [originpos+2]
+	sub			dx, [campos+2]
+	shl			dx, 1
+
+	cmp			cx, 0
+	jl			.drawtools
+	cmp			cx, 312
+	jg			.drawtools
+	cmp			dx, 0
+	jl			.drawtools
+	cmp			dx, 92
+	jg			.drawtools
+
+
 	push		2
 	push		0
 	push		8
 	push		224
-
-	mov			ax, [originpos]
-	sub			ax, [campos]
-	shl			ax, 1
-	push		ax
-
-	mov			ax, [originpos+2]
-	sub			ax, [campos+2]
-	shl			ax, 1
-	push		ax
-
+	push		cx
+	push		dx
 	xor			eax, eax
 	mov			ax, mapsheet
 	push		eax
@@ -209,6 +207,8 @@ MAP_EDITOR:
 	mov			si, playbutton ; get back si. PrintButton modify si
 	mov			ax, [si+10]
 	cmp			ax, 2
+	je			PLAY
+	cmp			byte[kbdbuf+0x1C], 1
 	je			PLAY
 
 	; Print cursor depending  on mouse sel 

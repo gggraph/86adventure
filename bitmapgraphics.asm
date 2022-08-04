@@ -1,13 +1,9 @@
-; TODO
-; Testing using (no draw for black color ... ) ----> THIS IS NOT SET UP 
-; 
-
+; Print a 8x8 sprite with 8bit color given a spritesheet
 PRINT_CUSTOM_8BIT_FORMAT:
 
 	push		bp
 	mov			bp, sp
 	mov			edi, [bp+4] 
-
 
 	mov			ax, [bp+22]
 	cmp			ax, 0
